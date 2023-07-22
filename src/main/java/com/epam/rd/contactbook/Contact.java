@@ -1,10 +1,10 @@
 package com.epam.rd.contactbook;
 
 public class Contact {
-    private final Email[] emails = new Email[3];
+    private final ContactInfo[] emails = new Email[3];
     private final Social[] socialMedia = new Social[5];
     private String name;
-    private PhoneNumber phoneNumber;
+    private ContactInfo phoneNumber;
     private int emailCount = 0;
     private int socialCount = 0;
     private int phoneNumCount = 0;
@@ -39,15 +39,37 @@ public class Contact {
         if (emailCount >= 3) {
             return null;
         }
-        Email email = new EpamEmail(firstName, lastName);
-        emails[emailCount++] = email;
-        return email;
+        Email epamEmail = new Email(firstName, lastName) {
+            @Override
+            public String getTitle() {
+                return "Epam Email";
+            }
+
+            @Override
+            public String getValue() {
+                return firstName + "_" + lastName + "@epam.com";
+            }
+        };
+
+        emails[emailCount++] = epamEmail;
+        return  epamEmail;
     }
 
     public ContactInfo addPhoneNumber(int code, String number) {
         if (phoneNumCount == 1) return null;
+        phoneNumber = new ContactInfo() {
 
-        phoneNumber = new PhoneNumber(code, number);
+            @Override
+            public String getTitle() {
+                return "Tel";
+            }
+
+            @Override
+            public String getValue() {
+                return "+" + code + " " + number;
+            }
+
+        };
         phoneNumCount++;
         return phoneNumber;
     }
@@ -120,13 +142,11 @@ public class Contact {
         private final String title;
         private final String value;
 
-
         public Email(String localPart, String domain) {
             title = "Email";
             value = localPart + "@" + domain;
+
         }
-
-
         @Override
         public String getTitle() {
             return title;
@@ -136,48 +156,11 @@ public class Contact {
         public String getValue() {
             return value;
         }
+
+
     }
 
-    public static class PhoneNumber implements ContactInfo {
-        private final String value;
-
-        public PhoneNumber(int code, String number) {
-            this.value = "+" + code + " " + number;
-        }
-
-        @Override
-        public String getTitle() {
-            return "Tel";
-        }
-
-        @Override
-        public String getValue() {
-            return value;
-        }
-    }
-
-    private static class EpamEmail extends Email  {
-        private final String title;
-        private final String value;
-
-        public EpamEmail(String firstName, String lastName) {
-            super(firstName, lastName);
-            this.title = "Epam Email";
-            this.value = firstName + "_" + lastName + "@epam.com";
-        }
-
-        @Override
-        public String getTitle() {
-            return title;
-        }
-
-        @Override
-        public String getValue() {
-            return value;
-        }
-    }
-
-    public class NameContactInfo implements ContactInfo {
+    private class NameContactInfo implements ContactInfo {
         @Override
         public String getTitle() {
             return "Name";
